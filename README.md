@@ -196,4 +196,8 @@ wsService.connect().then(() => {
 
 ## License
 
-MIT 
+MIT
+
+## Связанные проекты
+
+- [flanx-pusher](https://github.com/Terciuss/flanx-pusher) — серверная библиотека для Laravel с поддержкой Pusher-протокола и WebSocket-демоном. 
