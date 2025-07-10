@@ -1,6 +1,6 @@
 {
   "name": "flanx-pusher-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pusher client for real-time communication",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
