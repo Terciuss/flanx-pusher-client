@@ -1,11 +1,11 @@
-# @freelance/native-websocket
+# flanx-pusher-client
 
-Native WebSocket service for real-time communication in React applications.
+Native WebSocket service for real-time communication in JavaScript/TypeScript applications.
 
 ## Installation
 
 ```bash
-npm install @freelance/native-websocket
+npm install flanx-pusher-client
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install @freelance/native-websocket
 ### Basic Usage
 
 ```typescript
-import { NativeWebSocketService, EBaseEventType } from '@freelance/native-websocket';
+import { NativeWebSocketService, EBaseEventType } from 'flanx-pusher-client';
 
 // Создание экземпляра с параметрами
 const wsService = new NativeWebSocketService('ws://localhost:6001/api/v1/ws?app_uuid=YOUR_APP_UUID&token=YOUR_TOKEN');
@@ -46,7 +46,7 @@ wsService.sendCustomEvent('custom.event', { data: 'value' });
 ### Configuration
 
 ```typescript
-import { NativeWebSocketService } from '@freelance/native-websocket';
+import { NativeWebSocketService } from 'flanx-pusher-client';
 
 // Создание экземпляра с полным URL
 const wsService = new NativeWebSocketService('ws://localhost:6001/api/v1/ws?app_uuid=YOUR_APP_UUID&token=YOUR_TOKEN');
@@ -64,7 +64,7 @@ const wsService = new NativeWebSocketService(
 ### Event Types
 
 ```typescript
-import { EBaseEventType, EMessageType } from '@freelance/native-websocket';
+import { EBaseEventType, EMessageType } from 'flanx-pusher-client';
 
 // Базовые типы событий (встроенные)
 EBaseEventType.PING
@@ -84,6 +84,84 @@ const CUSTOM_EVENTS = {
   NOTIFICATION: 'notification',
   // Добавьте свои события
 } as const;
+```
+
+## Examples
+
+Полный пример реализации чата с использованием `flanx-pusher-client` (включая React интеграцию) находится в папке `examples/chat-example/`.
+
+### Основные возможности примера:
+
+- ✅ Подключение к WebSocket серверу
+- ✅ Подписка на каналы чата
+- ✅ Отправка и получение сообщений
+- ✅ Индикация набора текста
+- ✅ Статусы сообщений (отправлено/доставлено/прочитано)
+- ✅ Автоматическое переподключение
+- ✅ Полная типизация TypeScript
+- ✅ Интеграция с React (в примере)
+
+### Быстрый старт:
+
+```typescript
+import { ChatComponent } from 'examples/chat-example/ChatComponent';
+
+<ChatComponent
+  chatId="123"
+  user={{ id: 1, name: "User" }}
+  wsUrl="ws://localhost:8080"
+  addNotification={(notification) => console.log(notification)}
+/>
+```
+
+Подробная документация по примеру: [examples/chat-example/README.md](examples/chat-example/README.md)
+
+### Использование в других фреймворках
+
+#### Vue.js
+```typescript
+import { NativeWebSocketService } from 'flanx-pusher-client';
+
+export default {
+  data() {
+    return {
+      wsService: new NativeWebSocketService('ws://localhost:8080'),
+      messages: []
+    }
+  },
+  async mounted() {
+    await this.wsService.connect();
+    this.wsService.on('message.sent', (data) => {
+      this.messages.push(data);
+    });
+  }
+}
+```
+
+#### Vanilla JavaScript
+```javascript
+import { NativeWebSocketService } from 'flanx-pusher-client';
+
+const wsService = new NativeWebSocketService('ws://localhost:8080');
+
+wsService.connect().then(() => {
+  wsService.on('message.sent', (data) => {
+    console.log('New message:', data);
+  });
+});
+```
+
+#### Node.js
+```javascript
+const { NativeWebSocketService } = require('flanx-pusher-client');
+
+const wsService = new NativeWebSocketService('ws://localhost:8080');
+
+wsService.connect().then(() => {
+  wsService.on('message.sent', (data) => {
+    console.log('New message:', data);
+  });
+});
 ```
 
 ## API Reference
