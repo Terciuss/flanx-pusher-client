@@ -39,6 +39,9 @@ wsService.sendMessage(123, {
   type: 'text'
 });
 
+// Отправка события прочтения сообщения
+wsService.sendMessageRead(123, 456);
+
 // Отправка пользовательского события
 wsService.sendCustomEvent('custom.event', { data: 'value' });
 ```
@@ -64,7 +67,7 @@ const wsService = new NativeWebSocketService(
 ### Event Types
 
 ```typescript
-import { EBaseEventType, EMessageType } from 'flanx-pusher-client';
+import { EBaseEventType, EChatEventType } from 'flanx-pusher-client';
 
 // Базовые типы событий (встроенные)
 EBaseEventType.PING
@@ -76,12 +79,15 @@ EBaseEventType.UNSUBSCRIBE
 EBaseEventType.UNSUBSCRIBED
 EBaseEventType.ERROR
 
+// Стандартные типы событий чата
+EChatEventType.MESSAGE_SENT
+EChatEventType.USER_TYPING
+EChatEventType.MESSAGE_READ
+
 // Пользовательские типы событий (определяются вами)
 const CUSTOM_EVENTS = {
-  MESSAGE_SENT: 'message.sent',
-  MESSAGE_READ: 'message.read',
-  USER_TYPING: 'user.typing',
   NOTIFICATION: 'notification',
+  USER_STATUS: 'user.status',
   // Добавьте свои события
 } as const;
 ```
@@ -178,6 +184,7 @@ wsService.connect().then(() => {
 - `unsubscribeFromChat(chatId: number): void` - Отписка от канала чата
 - `sendMessage(chatId: number, data: any): void` - Отправка сообщения
 - `sendTypingEvent(chatId: number, isTyping?: boolean): void` - Отправка события набора текста
+- `sendMessageRead(chatId: number, messageId: number): void` - Отправка события прочтения сообщения
 - `sendCustomEvent(eventType: string, data?: any, channel?: string): void` - Отправка пользовательского события
 
 - `on(event: string, callback: (data: any) => void): void` - Подписка на события

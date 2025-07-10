@@ -1,4 +1,4 @@
-import { EBaseEventType, INativeMessage } from './types';
+import { EBaseEventType, EChatEventType, INativeMessage } from './types';
 
 export class NativeWebSocketService {
   private socket: WebSocket | null = null;
@@ -119,7 +119,7 @@ export class NativeWebSocketService {
     }
 
     this.send({
-      type: 'message.sent', // Пользователь может переопределить
+      type: EChatEventType.MESSAGE_SENT, 
       channel: `chat.${chatId}`,
       data: {
         chat_id: chatId,
@@ -138,11 +138,30 @@ export class NativeWebSocketService {
     }
 
     this.send({
-      type: 'user.typing', // Пользователь может переопределить
+      type: EChatEventType.USER_TYPING,
       channel: `chat.${chatId}`,
       data: {
         chat_id: chatId,
         is_typing: isTyping
+      }
+    });
+  }
+
+  /**
+   * Отправка события прочтения сообщения через WebSocket
+   */
+  sendMessageRead(chatId: number, messageId: number): void {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+      console.warn('WebSocket not connected');
+      return;
+    }
+
+    this.send({
+      type: EChatEventType.MESSAGE_READ,
+      channel: `chat.${chatId}`,
+      data: {
+        chat_id: chatId,
+        message_id: messageId
       }
     });
   }

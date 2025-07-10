@@ -16,4 +16,11 @@ export enum EBaseEventType {
   UNSUBSCRIBE = 'unsubscribe',
   UNSUBSCRIBED = 'unsubscribed',
   ERROR = 'error',
+}
+
+// Стандартные типы событий чата
+export enum EChatEventType {
+  MESSAGE_SENT = 'message.sent',
+  USER_TYPING = 'user.typing',
+  MESSAGE_READ = 'message.read',
 } 
