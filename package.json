@@ -1,0 +1,44 @@
+{
+  "name": "flanx-pusher-client",
+  "version": "1.0.0",
+  "description": "Pusher client for real-time communication",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "pusher",
+    "websocket",
+    "realtime",
+    "typescript",
+    "chat",
+    "messaging"
+  ],
+  "author": "Terciuss",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.19.7",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Terciuss/flanx-pusher-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Terciuss/flanx-pusher-client/issues"
+  },
+  "homepage": "https://github.com/Terciuss/flanx-pusher-client#readme"
+}
