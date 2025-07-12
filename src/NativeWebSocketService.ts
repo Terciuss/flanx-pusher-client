@@ -6,7 +6,7 @@ export class NativeWebSocketService {
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
-  private isConnecting = false;
+  private isConnectedFlag = false;
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private subscribedChannels: Set<string> = new Set();
 
@@ -20,44 +20,46 @@ export class NativeWebSocketService {
   /**
    * Подключение к WebSocket серверу
    */
-  async connect(): Promise<void> {
-    if (this.socket?.readyState === WebSocket.OPEN || this.isConnecting) {
-      return;
+  connect(): Promise<void> {
+    if (this.socket?.readyState === WebSocket.OPEN || this.isConnectedFlag) {
+      return Promise.resolve();
     }
 
-    this.isConnecting = true;
+    this.isConnectedFlag = false;
 
-    try {
-      this.socket = new WebSocket(this.wsUrl);
+    return new Promise<void>((resolve, reject) => {
+      try {
+        this.socket = new WebSocket(this.wsUrl);
 
-      this.socket.onopen = () => {
-        console.log('WebSocket connected');
-        this.isConnecting = false;
-        this.reconnectAttempts = 0;
-        this.startHeartbeat();
-      };
+        this.socket.onopen = () => {
+          this.reconnectAttempts = 0;
+          this.startHeartbeat();
+          this.isConnectedFlag = true;
+          resolve();
+        };
 
-      this.socket.onmessage = (event) => {
-        this.handleMessage(event.data);
-      };
+        this.socket.onmessage = (event) => {
+          this.handleMessage(event.data);
+        };
 
-      this.socket.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason);
-        this.isConnecting = false;
-        this.stopHeartbeat();
-        this.handleReconnect();
-      };
+        this.socket.onclose = (event) => {
+          this.isConnectedFlag = false;
+          this.stopHeartbeat();
+          this.handleReconnect();
+        };
 
-      this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        this.isConnecting = false;
-      };
+        this.socket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.isConnectedFlag = false;
+          reject(error);
+        };
 
-    } catch (error) {
-      console.error('Failed to connect to WebSocket:', error);
-      this.isConnecting = false;
-      throw error;
-    }
+      } catch (error) {
+        console.error('Failed to connect to WebSocket:', error);
+        this.isConnectedFlag = false;
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -113,7 +115,7 @@ export class NativeWebSocketService {
    * Отправка сообщения через WebSocket
    */
   sendMessage(chatId: number, data: any): void {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+    if (!this.isConnectedFlag) {
       console.warn('WebSocket not connected');
       return;
     }
@@ -132,7 +134,7 @@ export class NativeWebSocketService {
    * Отправка события набора текста через WebSocket
    */
   sendTypingEvent(chatId: number, isTyping: boolean = true): void {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+    if (!this.isConnectedFlag) {
       console.warn('WebSocket not connected');
       return;
     }
@@ -151,7 +153,7 @@ export class NativeWebSocketService {
    * Отправка события прочтения сообщения через WebSocket
    */
   sendMessageRead(chatId: number, messageId: number): void {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+    if (!this.isConnectedFlag) {
       console.warn('WebSocket not connected');
       return;
     }
@@ -170,7 +172,7 @@ export class NativeWebSocketService {
    * Отправка пользовательского события
    */
   sendCustomEvent(eventType: string, data?: any, channel?: string): void {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+    if (!this.isConnectedFlag) {
       console.warn('WebSocket not connected');
       return;
     }
@@ -217,7 +219,7 @@ export class NativeWebSocketService {
    * Отправка сообщения через WebSocket
    */
   private send(data: INativeMessage<any>): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.isConnectedFlag && this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(data));
     }
   }
@@ -315,7 +317,7 @@ export class NativeWebSocketService {
 
     this.subscribedChannels.clear();
     this.listeners.clear();
-    this.isConnecting = false;
+    this.isConnectedFlag = false;
     this.reconnectAttempts = 0;
   }
 
@@ -323,7 +325,7 @@ export class NativeWebSocketService {
    * Проверка подключения
    */
   isConnected(): boolean {
-    return this.socket?.readyState === WebSocket.OPEN;
+    return this.isConnectedFlag;
   }
 
   /**
